@@ -27,6 +27,7 @@ You can use pyenv and venv to create a virtual environment of this python versio
 
 ```
 python -m venv .venv
+.venv/Scripts/activate
 ```
 
 ### Install the requirements
