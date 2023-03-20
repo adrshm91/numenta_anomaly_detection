@@ -2,6 +2,14 @@ import sys
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from clearml import Task, TaskTypes
+
+task = Task.init(
+    project_name="numenta_anomaly_detection",
+    task_name="preprocess",
+    task_type=TaskTypes.data_processing,
+    reuse_last_task_id=False,
+)
 
 
 def main():
@@ -39,10 +47,10 @@ def main():
     ax.set_xlabel("Date")
     ax.set_ylabel("Temperature")
     ax.set_title("Temperature sensor data with anomalies")
-    plt.show()
+    plt.savefig("results/temperature_sensor_data.png")
 
     # Save processed data
-    df.to_csv("data/processed/temperature_data.csv")
+    df.to_csv("data/processed/temperature_data_processed.csv")
 
 
 if __name__ == "__main__":

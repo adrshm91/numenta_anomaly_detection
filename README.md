@@ -13,9 +13,33 @@ The repo contains various branches based on the mlops platform that is used. For
 As a data scientist, I would like to perform two workflows
 
 1. Load data, preprocess data, train a model and save a model
-2. Perform retraining of the model by changing model parameters
+2. Try different combinations of hyperparameters, model architectures in order to generate the best model.
+3. Perform retraining of the best model by changing input data and model parameters
 
 The objective is to note down the difficulties/pain points experienced as a data scientist when performing the above workloads. And to check if these pain points are addressed with mlops tools.
+
+### Pain points during model creation
+
+1. **Experiment Management**
+
+    - Every change of input data feature, change of hyperparameters, change of code corresponds to an experiment. Without mlops, the experiments are tracked by creating/maintaining folder_names/file_names which can easily be unmanagable
+
+2. **Reproducibility**
+
+    - Without proper tracking, it is difficult to reproduce an experiment that was created using a specific dataset, with specific code, with specific environment, with specific hyperparameters and that generated specific results/artifacts
+
+3. **Orchestration**
+
+    - Often times, we have different scripts that are used for preprocess, training, evaluation, etc. In order to orchestrate these steps we need ml-pipelines.
+
+4. **Data Versioning and Model Registry**
+
+    - We don't want to store data and model artifacts in the git repository which is meant for code versioning. Instead we would like to version the data and the model in a separate versioning system
+
+5. **Transfer execution to a powerful machine**
+
+    - We don't want to train locally in our laptop when we have a huge dataset. Without mlops it is difficult to replicate the environment in a new machine and run training there.
+
 
 ## Installation
 
