@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 import joblib
-from clearml import Task, TaskTypes
+from clearml import Task, TaskTypes, Logger, Dataset
 
 task = Task.init(
     project_name="numenta_anomaly_detection",
@@ -21,9 +21,15 @@ task = Task.init(
 
 
 def main():
+
+    dataset = Dataset.get(
+        dataset_name="numenta", dataset_project="numenta_anomaly_detection"
+    )
+    local_folder = dataset.get_local_copy()
+
     # Load processed data
     df = pd.read_csv(
-        "data/processed/temperature_data_processed.csv",
+        f"{local_folder}/processed/temperature_data_processed.csv",
         parse_dates=["timestamp"],
         index_col="timestamp",
     )
@@ -79,9 +85,19 @@ def main():
 
     print(f"F1 score: {f1}")
 
+    Logger.current_logger().report_scalar(
+        "Model Performance", "F1 Score", iteration=0, value=f1
+    )
+
     # Save test predictions
     test_data["predictions"] = y_pred
     test_data.to_csv("results/test_predictions.csv")
+    task.upload_artifact(
+        artifact_object="results/test_predictions.csv", name="predictions"
+    )
+    Logger.current_logger().report_table(
+        "Test Predictions", "PD with index", iteration=0, table_plot=test_data
+    )
 
     # Compute the confusion matrix
     cm = confusion_matrix(test_data["anomaly"], y_pred, labels=[1, -1])
@@ -98,7 +114,28 @@ def main():
     )
     plt.xlabel("Predicted Labels")
     plt.ylabel("True Labels")
+    plt.title("Confusion Matrix")
     plt.savefig("results/confusion_matrix.png")
+
+    Logger.current_logger().report_matrix(
+        "Confusion Matrix",
+        "ignored",
+        iteration=0,
+        matrix=cm,
+        xaxis="Predicted Labels",
+        yaxis="True Labels",
+    )
+
+    # I would not use this. Instead i can plot histogram using countplot
+    Logger.current_logger().report_histogram(
+        "Count of anomaly",
+        "anomaly count",
+        iteration=0,
+        values=df["anomaly"].value_counts().to_list(),
+        xaxis="Anomaly",
+        yaxis="Count",
+        xlabels=[1, -1],
+    )
 
     # Save the model
     filename = "models/isolation_forest.joblib"

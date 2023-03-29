@@ -2,7 +2,7 @@ import sys
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
-from clearml import Task, TaskTypes
+from clearml import Task, TaskTypes, Dataset
 
 task = Task.init(
     project_name="numenta_anomaly_detection",
@@ -51,6 +51,14 @@ def main():
 
     # Save processed data
     df.to_csv("data/processed/temperature_data_processed.csv")
+
+    dataset = Dataset.create(
+        dataset_name="numenta", dataset_project="numenta_anomaly_detection"
+    )
+
+    dataset.add_files(path="data")
+
+    dataset.finalize(auto_upload=True)
 
 
 if __name__ == "__main__":
