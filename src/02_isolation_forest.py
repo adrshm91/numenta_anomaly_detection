@@ -122,7 +122,7 @@ def main():
         "ignored",
         iteration=0,
         matrix=cm,
-        xaxis="Predicted Labels",
+        axis="Predicted Labels",
         yaxis="True Labels",
     )
 
