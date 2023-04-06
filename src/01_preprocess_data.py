@@ -1,4 +1,5 @@
 import sys
+import argparse
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,17 +13,17 @@ task = Task.init(
 )
 
 
-def main():
-    # Load machine temperature system failure data
-    df = pd.read_csv("data/input/realKnownCause/machine_temperature_system_failure.csv")
+def main(dataset_name="realKnownCause/machine_temperature_system_failure"):
+    # Load input data
+    df = pd.read_csv(f"data/input/{dataset_name}.csv")
 
     with open("data/labels/combined_labels.json") as label_file:
         labels = json.loads(label_file.read())
-    labels = labels["realKnownCause/machine_temperature_system_failure.csv"]
+    labels = labels[f"{dataset_name}.csv"]
 
     with open("data/labels/combined_windows.json") as window_file:
         windows = json.loads(window_file.read())
-    windows = windows["realKnownCause/machine_temperature_system_failure.csv"]
+    windows = windows[f"{dataset_name}.csv"]
 
     # Set anomaly label according to windows
     df["timestamp"] = pd.to_datetime(df["timestamp"])
@@ -45,12 +46,12 @@ def main():
         ax.scatter(x=df_slice.index[idx], y=df_slice.iloc[idx]["value"])
     ax.legend()
     ax.set_xlabel("Date")
-    ax.set_ylabel("Temperature")
-    ax.set_title("Temperature sensor data with anomalies")
-    plt.savefig("results/temperature_sensor_data.png")
+    ax.set_ylabel("Value")
+    ax.set_title("Sensor data with anomalies")
+    plt.savefig("results/sensor_data.png")
 
     # Save processed data
-    df.to_csv("data/processed/temperature_data_processed.csv")
+    df.to_csv("data/processed/data_processed.csv")
 
     dataset = Dataset.create(
         dataset_name="numenta", dataset_project="numenta_anomaly_detection"
@@ -62,4 +63,8 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset_name", type=str, required=True)
+    args = parser.parse_args()
+    dataset_name = args.dataset_name
+    sys.exit(main(dataset_name))

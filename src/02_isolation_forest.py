@@ -10,6 +10,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 import joblib
+import argparse
 from clearml import Task, TaskTypes, Logger, Dataset
 
 task = Task.init(
@@ -20,7 +21,7 @@ task = Task.init(
 )
 
 
-def main():
+def main(dataset_name="realKnownCause/machine_temperature_system_failure"):
 
     dataset = Dataset.get(
         dataset_name="numenta", dataset_project="numenta_anomaly_detection"
@@ -29,7 +30,7 @@ def main():
 
     # Load processed data
     df = pd.read_csv(
-        f"{local_folder}/processed/temperature_data_processed.csv",
+        f"{local_folder}/processed/data_processed.csv",
         parse_dates=["timestamp"],
         index_col="timestamp",
     )
@@ -59,7 +60,7 @@ def main():
     with open("data/labels/combined_windows.json") as window_file:
         windows = json.loads(window_file.read())
 
-    windows = windows["realKnownCause/machine_temperature_system_failure.csv"]
+    windows = windows[f"{dataset_name}.csv"]
 
     ax = train_data["value"].plot(figsize=(10, 5), label="training", color="blue")
     ax = test_data["value"].plot(figsize=(10, 5), label="testing", color="green")
@@ -75,9 +76,9 @@ def main():
     )
     plt.legend()
     ax.set_xlabel("Date")
-    ax.set_ylabel("Temperature")
-    ax.set_title("Temperature sensor data with predictions")
-    plt.savefig("results/temperature_sensor_data_predictions.png")
+    ax.set_ylabel("Value")
+    ax.set_title("Sensor data with predictions")
+    plt.savefig("results/sensor_data_predictions.png")
 
     # Compute the F1 score
     y_pred = clf.predict(test_data[["value"]])
@@ -143,4 +144,8 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset_name", type=str, required=True)
+    args = parser.parse_args()
+    dataset_name = args.dataset_name
+    sys.exit(main(dataset_name))
