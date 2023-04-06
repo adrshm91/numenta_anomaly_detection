@@ -20,7 +20,6 @@ pipe.add_step(
     base_task_project="numenta_anomaly_detection",
     base_task_name="training",
     parents=["stage_preprocess"],
-    execution_queue="gpu",
 )
 
 # pipe.start_locally(run_pipeline_steps_locally=True)
